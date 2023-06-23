@@ -1,1 +1,19 @@
 /*  your css code here. If applicable */
+.image-container{
+	display: flex;
+	flex_wrap: wrap;
+	flex_direction: row;
+	gap: 12px;
+	height: 150px
+}
+
+.button-container{
+	text-align: center;
+	gap:10px;
+}
+
+#reset{
+
+margin-right: 70px;
+
+}
