@@ -1,90 +1,53 @@
-let image = [];
-for (let i = 0; i < 5; i++) {
-  let t = document.createElement("IMG");
-  t.setAttribute("data-ns-test", `img${i + 1}`);
-  t.width = 100;
-  t.height = 100;
-  t.onclick = (e) => captchaClick(e);
-  t.src = `images/${i + 1}.jpg`;
-  image.push(t);
-}
-let temp = Math.floor(Math.random() * 5);
-let t = document.createElement("IMG");
-t.setAttribute("data-ns-test", `img${temp + 1}`);
-t.width = 100;
-t.height = 100;
-t.onclick = (e) => captchaClick(e);
-t.src = `images/${temp + 1}.jpg`;
-image.push(t);
-image.sort(() => Math.random() - 0.5);
-for (let i = 0; i < 6; i++) {
-  document.getElementById("main").appendChild(image[i]);
-}
+    var imageClasses = ['img1', 'img2', 'img3', 'img4', 'img5'];
+    var repeatImageClass = imageClasses[Math.floor(Math.random() * imageClasses.length)];
+    imageClasses.sort(function() { return 0.5 - Math.random(); });
+    var images = document.querySelectorAll('#image-container img');
+    var selectedImages = [];
+    var resetButton = document.getElementById('reset');
+    var verifyButton = document.getElementById('verify');
+    var para = document.getElementById('para');
 
-let captcha = [];
-function clearCaptcha() {
-  // console.log("Clearing captcha");
-  for (let i = 0; i < 6; i++) {
-    image[i].onclick = (e) => captchaClick(e);
-  }
-  captcha = [];
-  try {
-    document.getElementById("para").remove();
-  } catch (e) {}
-  try {
-    document.getElementById("btn").remove();
-  } catch (e) {}
-  try {
-    document.getElementById("reset").remove();
-  } catch (e) {}
-}
+    for (var i = 0; i < images.length; i++) {
+      var imageClass = imageClasses[i];
+      images[i].src = 'path_to_image' + (i + 1) + '.jpg';
+      images[i].className = imageClass;
+      if (imageClass === repeatImageClass) {
+        images[i].addEventListener('click', handleRepeatImageClick);
+      } else {
+        images[i].addEventListener('click', handleImageClick);
+      }
+    }
 
-function captchaClick(e) {
-  console.log(e.target.attributes["data-ns-test"].nodeValue);
-  captcha.push(e.target.attributes["data-ns-test"].nodeValue);
-  e.target.onclick = () => {};
-  // console.log(captcha);
+    function handleRepeatImageClick() {
+      // Do nothing or add any specific behavior for the repeated image
+    }
 
-  if (captcha.length === 1) {
-    let p = document.createElement("button");
-    p.id = "reset";
-    p.innerHTML = "Reset";
-    p.onclick = () => {
-      clearCaptcha();
-    };
-    document.getElementById("main").appendChild(p);
-  }
+    function handleImageClick() {
+      if (selectedImages.length < 2) {
+        this.classList.add('selected');
+        selectedImages.push(this);
+        if (selectedImages.length === 1) {
+          resetButton.classList.remove('hidden');
+        } else if (selectedImages.length === 2) {
+          verifyButton.classList.remove('hidden');
+          verifyButton.addEventListener('click', handleVerifyButtonClick);
+        }
+      }
+    }
 
-  if (captcha.length === 2) {
-    let t = document.createElement("button");
-    t.id = "btn";
-    t.innerHTML = "Verify";
-    t.onclick = () => {
-      captchaVerify();
-    };
-    document.getElementById("main").appendChild(t);
-  } else if (captcha.length > 2) {
-    try {
-      document.getElementById("btn").remove();
-    } catch (e) {}
-  }
-  try {
-    document.getElementById("para").remove();
-  } catch (e) {}
-}
+    function handleVerifyButtonClick() {
+      verifyButton.classList.add('hidden');
+      var identical = selectedImages[0].className === selectedImages[1].className;
+      para.innerHTML = identical ? 'You are a human. Congratulations!' : 'We can\'t verify you as a human. You selected the non-identical tiles.';
+      para.classList.remove('hidden');
+    }
 
-function captchaVerify() {
-  if (captcha.length === 2 && captcha[0] === captcha[1]) {
-    let t = document.createElement("P");
-    t.innerHTML = "You are a human. Congratulations!";
-    t.id = "para";
-    document.getElementById("main").appendChild(t);
-  } else {
-    let t = document.createElement("P");
-    t.innerHTML =
-      "We can't verify you as a human. You selected the non-identical tiles.";
-    t.id = "para";
-    document.getElementById("main").appendChild(t);
-  }
-  document.getElementById("btn").remove();
-}
+    resetButton.addEventListener('click', function() {
+      selectedImages.forEach(function(image) {
+        image.classList.remove('selected');
+      });
+      selectedImages = [];
+      resetButton.classList.add('hidden');
+      verifyButton.classList.add('hidden');
+      para.classList.add('hidden');
+    });
